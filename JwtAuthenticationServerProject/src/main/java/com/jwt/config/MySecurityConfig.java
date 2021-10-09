@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.jwt.services.CustomUserDetailsService;
@@ -18,6 +19,9 @@ import com.jwt.services.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class MySecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private JwtAuthenticationEntryPoint entryPoint;
 
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
@@ -28,7 +32,8 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().cors().disable().authorizeRequests().antMatchers("/token").permitAll().anyRequest()
-				.authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.exceptionHandling().authenticationEntryPoint(entryPoint);
 
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	}
